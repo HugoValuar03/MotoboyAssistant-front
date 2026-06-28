@@ -53,27 +53,6 @@
                     <span class="material-symbols-outlined">search</span>
                     <input type="text" placeholder="Buscar corridas, observações...">
                 </div>
-
-                <div class="date-range-box">
-                    <div class="date-range-button" (click)="picker.open()">
-                        <span class="material-symbols-outlined calendar-icon">calendar_month</span>
-
-                        <span class="date-range-text">
-                            {{ dateRangeLabel }}
-                        </span>
-
-                        <span class="material-symbols-outlined arrow-icon">expand_more</span>
-                    </div>
-
-                    <mat-form-field class="date-range-hidden">
-                        <mat-date-range-input [rangePicker]="picker">
-                            <input matStartDate [(ngModel)]="startDate">
-                            <input matEndDate [(ngModel)]="endDate">
-                        </mat-date-range-input>
-
-                        <mat-date-range-picker #picker></mat-date-range-picker>
-                    </mat-form-field>
-                </div>
             </div>
             <div class="perfil">
                 <a href="#" class="perfil-button">

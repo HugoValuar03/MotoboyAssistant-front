@@ -1,0 +1,18 @@
+<div class="summary-card">
+    <div class="card-icon" [class]="color">
+        <span class="material-symbols-outlined">{{ icon }}</span>
+    </div>
+
+    <div class="card-content">
+        <div class="card-title">
+            <span>{{ title }}</span>
+            <span class="material-symbols-outlined info-icon">info</span>
+        </div>
+
+        <strong class="card-value" [class]="color">
+            {{ value }}
+        </strong>
+
+        <span class="card-subtitle"> {{ subtitle }} </span>
+    </div>
+</div>

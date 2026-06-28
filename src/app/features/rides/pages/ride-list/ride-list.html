@@ -1,18 +1,140 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="">
-  </head>
-  <body>
+<section class="listagem-page">
 
-  </body>
-</html>
+  <h1 class="titulo-page">Listagem de Corridas</h1>
+
+  <p class="legenda-page">Acompanhe suas corridas, ganhos e desempenho</p>
+
+  <section class="summary-grid">
+    <app-summary-card title="Total do dia" [value]="totalDayValue" [subtitle]="totalDaySubtitle" icon="attach_money"
+      color="green">
+    </app-summary-card>
+    <app-summary-card title="Total da Semana" [value]="totalWeekValue" [subtitle]="totalWeekSubtitle"
+      icon="calendar_month" color="blue">
+    </app-summary-card>
+    <app-summary-card title="Km Rodados" [value]="totalWeekKm" subtitle="Nesta semana" icon="route"
+      color="purple"></app-summary-card>
+    <app-summary-card title="Média por km" [value]="averageValuePerKm" subtitle="Nesta semana" icon="monitoring"
+      color="orange"></app-summary-card>
+  </section>
+
+  <section class="rides-table-card">
+    <div class="filters-row">
+      <div class="filter-field platform-filter">
+        <label>Plataforma</label>
+
+        <select [(ngModel)]="selectedPlatform" (change)="applyFilters()">
+          <option value="ALL">Todas</option>
+          <option value="UBER">Uber</option>
+          <option value="IFOOD">iFood</option>
+        </select>
+      </div>
+
+      <div class="filter-field date-range-filter">
+        <label>Período</label>
+
+        <div class="date-range-button" (click)="picker.open()">
+          <span class="material-symbols-outlined calendar-icon">calendar_month</span>
+
+          <span class="date-range-text">
+            {{ dateRangeLabel }}
+          </span>
+
+          <span class="material-symbols-outlined arrow-icon">expand_more</span>
+        </div>
+
+        <mat-form-field class="date-range-hidden">
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate [(ngModel)]="startDateFilter" (dateChange)="applyFilters()">
+
+            <input matEndDate [(ngModel)]="endDateFilter" (dateChange)="applyFilters()">
+          </mat-date-range-input>
+
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-field search-filter">
+        <label>Buscar por observação</label>
+
+        <div class="search-input">
+          <input type="text" placeholder="Ex.: cliente, endereço, etc." [(ngModel)]="searchTerm"
+            (input)="applyFilters()" />
+
+          <span class="material-symbols-outlined">search</span>
+        </div>
+      </div>
+
+      <button class="clear-button" type="button" (click)="clearFilters()">
+        <span class="material-symbols-outlined">filter_alt_off</span>
+        Limpar filtros
+      </button>
+
+      <button class="new-button" type="button">
+        <span class="material-symbols-outlined">add</span>
+        Nova Corrida
+      </button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Plataforma</th>
+            <th>Distância</th>
+            <th>Valor total</th>
+            <th>Valor por km</th>
+            <th>Data/Hora</th>
+            <th>Observações</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (ride of filteredRides; track ride.id) {
+          <tr>
+            <td>
+              <span class="platform-badge" [class]="getPlatformClass(ride.platform)">
+                {{ formatPlatform(ride.platform) }}
+              </span>
+            </td>
+
+            <td>{{ ride.distanceKm }} km</td>
+
+            <td class="money">
+              {{ formatCurrency(ride.totalValue) }}
+            </td>
+
+            <td>
+              {{ formatCurrency(ride.valuePerKm) }}/km
+            </td>
+
+            <td>
+              {{ formatDateTime(ride.occurredAt) }}
+            </td>
+
+            <td>{{ ride.notes || '-' }}</td>
+
+            <td>
+              <div class="actions">
+                <button class="action-button edit" type="button">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+
+                <button class="action-button delete" type="button">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="7" class="empty-message">
+              Nenhuma corrida encontrada
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

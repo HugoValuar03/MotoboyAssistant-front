@@ -166,7 +166,7 @@
 
     h2 {
         margin: 0;
-        font-size: 20px;
+        font-size: 25px;
         color: #0f172a;
         white-space: nowrap;
     }
@@ -221,118 +221,6 @@
     &:focus-within {
         border-color: #2563eb;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-}
-
-
-.date-range-box {
-    width: 280px;
-    height: 44px;
-
-    mat-form-field {
-        width: 100%;
-        height: 44px;
-    }
-}
-
-.date-range-button {
-    width: 300px;
-    height: 44px;
-    padding: 0 14px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background-color: white;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.calendar-icon {
-    font-size: 22px;
-    color: #64748b;
-}
-
-.date-range-text {
-    font-size: 14px;
-    font-weight: 600;
-    color: #334155;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.arrow-icon {
-    margin-left: auto;
-    font-size: 22px;
-    color: #64748b;
-    flex-shrink: 0;
-}
-
-.date-range-hidden {
-    position: absolute;
-    width: 0;
-    height: 0;
-    opacity: 0;
-    pointer-events: none;
-    overflow: hidden;
-}
-
-:host ::ng-deep .date-range-box {
-    .mat-mdc-form-field {
-        width: 100%;
-    }
-
-    .mat-mdc-text-field-wrapper {
-        height: 44px;
-        padding: 0 12px;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        background-color: white;
-    }
-
-    .mat-mdc-form-field-flex {
-        height: 44px;
-        align-items: center;
-    }
-
-    .mat-mdc-form-field-infix {
-        min-height: 44px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-    }
-
-    .mdc-notched-outline {
-        display: none;
-    }
-
-    .mat-mdc-form-field-subscript-wrapper {
-        display: none;
-    }
-
-    input {
-        font-size: 14px;
-        color: #0f172a;
-
-        &::placeholder {
-            color: #94a3b8;
-        }
-    }
-
-    .mat-mdc-icon-button {
-        width: 36px;
-        height: 36px;
-        padding: 6px;
-        color: #64748b;
-    }
-
-    &:focus-within {
-        .mat-mdc-text-field-wrapper {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-        }
     }
 }
 
