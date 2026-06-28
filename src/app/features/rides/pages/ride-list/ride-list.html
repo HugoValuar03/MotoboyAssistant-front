@@ -5,15 +5,15 @@
   <p class="legenda-page">Acompanhe suas corridas, ganhos e desempenho</p>
 
   <section class="summary-grid">
-    <app-summary-card title="Total do dia" [value]="totalDayValue" [subtitle]="totalDaySubtitle" icon="attach_money"
-      color="green">
+    <app-summary-card title="Total do período" [value]="totalDayValue" [subtitle]="totalDaySubtitle"
+      icon="attach_money" color="green">
     </app-summary-card>
-    <app-summary-card title="Total da Semana" [value]="totalWeekValue" [subtitle]="totalWeekSubtitle"
+    <app-summary-card title="Corridas" [value]="totalWeekValue" [subtitle]="totalWeekSubtitle"
       icon="calendar_month" color="blue">
     </app-summary-card>
-    <app-summary-card title="Km Rodados" [value]="totalWeekKm" subtitle="Nesta semana" icon="route"
+    <app-summary-card title="Km Rodados" [value]="totalWeekKm" subtitle="No período" icon="route"
       color="purple"></app-summary-card>
-    <app-summary-card title="Média por km" [value]="averageValuePerKm" subtitle="Nesta semana" icon="monitoring"
+    <app-summary-card title="Média por km" [value]="averageValuePerKm" subtitle="No período" icon="monitoring"
       color="orange"></app-summary-card>
   </section>
 
@@ -27,30 +27,6 @@
           <option value="UBER">Uber</option>
           <option value="IFOOD">iFood</option>
         </select>
-      </div>
-
-      <div class="filter-field date-range-filter">
-        <label>Período</label>
-
-        <div class="date-range-button" (click)="picker.open()">
-          <span class="material-symbols-outlined calendar-icon">calendar_month</span>
-
-          <span class="date-range-text">
-            {{ dateRangeLabel }}
-          </span>
-
-          <span class="material-symbols-outlined arrow-icon">expand_more</span>
-        </div>
-
-        <mat-form-field class="date-range-hidden">
-          <mat-date-range-input [rangePicker]="picker">
-            <input matStartDate [(ngModel)]="startDateFilter" (dateChange)="applyFilters()">
-
-            <input matEndDate [(ngModel)]="endDateFilter" (dateChange)="applyFilters()">
-          </mat-date-range-input>
-
-          <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
       </div>
 
       <div class="filter-field search-filter">

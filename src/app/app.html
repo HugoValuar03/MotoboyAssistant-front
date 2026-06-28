@@ -17,7 +17,7 @@
                 <span>Categorias</span>
             </a>
 
-            <a class="menu-item active" href="#">
+            <a class="menu-item" routerLink="/corridas" routerLinkActive="active">
                 <span class="material-symbols-outlined">two_wheeler</span>
                 <span>Corridas</span>
             </a>
@@ -51,18 +51,41 @@
             <div class="topbar-actions">
                 <div class="search-box">
                     <span class="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Buscar corridas, observações...">
+                    <input type="text" placeholder="Buscar corridas, observações..." [(ngModel)]="searchTerm">
                 </div>
+            </div>
+            <div class="topbar-date-range">
+                <div class="date-range-button" (click)="picker.open()">
+                    <span class="material-symbols-outlined calendar-icon">calendar_month</span>
+
+                    <span class="date-range-text">
+                        {{ dateRangeLabel }}
+                    </span>
+
+                    <span class="material-symbols-outlined arrow-icon">expand_more</span>
+                </div>
+
+                <mat-form-field class="date-range-hidden">
+                    <mat-date-range-input [rangePicker]="picker">
+                        <input matStartDate [(ngModel)]="startDate">
+
+                        <input matEndDate [(ngModel)]="endDate">
+                    </mat-date-range-input>
+
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
             </div>
             <div class="perfil">
                 <a href="#" class="perfil-button">
                     <span class="material-symbols-outlined">person</span>
                 </a>
             </div>
+
         </header>
 
-        <body class="conteudo">
-            <app-ride-list></app-ride-list>
-        </body>
+        <section class="conteudo">
+            <app-ride-list [topbarSearchTerm]="searchTerm" [topbarStartDate]="startDate" [topbarEndDate]="endDate"
+                (clearTopbarFilters)="clearTopbarFilters()"></app-ride-list>
+        </section>
     </main>
 </div>

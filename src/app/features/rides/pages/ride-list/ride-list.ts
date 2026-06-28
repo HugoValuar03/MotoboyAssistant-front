@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Ride } from '../../models/ride.model';
 import { RideService } from '../../services/ride';
@@ -17,21 +17,26 @@ import { MatInputModule } from '@angular/material/input';
   styleUrl: './ride-list.scss',
 })
 
-export class RideList implements OnInit {
+export class RideList implements OnInit, OnChanges {
 
   rides: Ride[] = [];
   filteredRides: Ride[] = [];
 
+  @Input() topbarSearchTerm = '';
+  @Input() topbarStartDate: Date | null = null;
+  @Input() topbarEndDate: Date | null = null;
+  @Output() clearTopbarFilters = new EventEmitter<void>();
+
   selectedPlatform = 'ALL';
   searchTerm = '';
-  startDateFilter: Date | null = new Date(2024, 4, 19);
-  endDateFilter: Date | null = new Date(2024, 4, 25);
+  startDateFilter: Date | null = null;
+  endDateFilter: Date | null = null;
 
   totalDayValue = 'R$ 0,00';
   totalDaySubtitle = '0 corridas';
-  totalWeekValue = 'R$ 0,00';
-  totalWeekSubtitle = '0 corridas';
-  totalWeekKm = '0 km';
+  totalWeekValue = '0';
+  totalWeekSubtitle = 'corridas encontradas';
+  totalWeekKm = '0,0km';
   averageValuePerKm = 'R$ 0,00/km';
 
   constructor(private rideService: RideService) { }
@@ -40,16 +45,21 @@ export class RideList implements OnInit {
     this.loadRides();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.rides.length) {
+      return;
+    }
+
+    if (changes['topbarStartDate'] || changes['topbarEndDate'] || changes['topbarSearchTerm']) {
+      this.applyFilters();
+    }
+  }
+
   loadRides(): void {
     this.rideService.findAll().subscribe({
       next: (data) => {
         this.rides = data;
-        this.filteredRides = data;
-
-        this.updateDayCards();
-        this.updateWeekCards();
-        this.updateWeekKmCards();
-        this.updateAverageValuePerKmSummary();
+        this.applyFilters();
       },
       error: (error) => {
         console.error('Erro ao buscar corridas: ', error);
@@ -65,7 +75,6 @@ export class RideList implements OnInit {
     return `${day}/${month}/${year}`;
   }
 
-
   get dateRangeLabel(): string {
     if (!this.startDateFilter || !this.endDateFilter) {
       return 'Selecionar período';
@@ -80,25 +89,33 @@ export class RideList implements OnInit {
       const matchesPlatform =
         this.selectedPlatform === 'ALL' || ride.platform === this.selectedPlatform;
 
-      const search = this.searchTerm.trim().toLowerCase();
+      const search = [this.searchTerm, this.topbarSearchTerm]
+        .map((term) => term.trim().toLowerCase())
+        .filter(Boolean);
 
       const matchesSearch =
-        !search ||
-        ride.notes?.toLowerCase().includes(search) ||
-        ride.platform.toLowerCase().includes(search);
+        !search.length ||
+        search.every((term) =>
+          ride.notes?.toLowerCase().includes(term) ||
+          ride.platform.toLowerCase().includes(term)
+        );
 
-      const rideDate = new Date(ride.occurredAt);
+      const rideDate = this.parseRideDate(ride.occurredAt);
 
-      const startDate = this.startDateFilter ? this.getStartOfDay(this.startDateFilter) : null;
+      const startDateSource = this.startDateFilter || this.topbarStartDate;
+      const endDateSource = this.endDateFilter || this.topbarEndDate;
 
-      const endDate = this.endDateFilter ? this.getEndOfDay(this.endDateFilter) : null;
+      const startDate = startDateSource ? this.getStartOfDay(startDateSource) : null;
+      const endDate = endDateSource ? this.getEndOfDay(endDateSource) : null;
 
-      const matchesStartDate = !startDate || rideDate >= startDate;
+      const matchesStartDate = !startDate || (rideDate && rideDate >= startDate);
 
-      const matchesEndDate = !endDate || rideDate <= endDate;
+      const matchesEndDate = !endDate || (rideDate && rideDate <= endDate);
 
       return matchesPlatform && matchesSearch && matchesStartDate && matchesEndDate;
     });
+
+    this.updateSummaryCards();
   }
 
   clearFilters(): void {
@@ -106,95 +123,32 @@ export class RideList implements OnInit {
     this.searchTerm = '';
     this.startDateFilter = null;
     this.endDateFilter = null;
+    this.clearTopbarFilters.emit();
     this.applyFilters();
   }
 
-  private updateDayCards(): void {
-    const today = new Date();
-
-    const todayRides = this.rides.filter((ride) => {
-      const rideDate = new Date(ride.occurredAt);
-
-      return (
-        rideDate.getDate() === today.getDate() &&
-        rideDate.getMonth() === today.getMonth() &&
-        rideDate.getFullYear() === today.getFullYear()
-      );
-    });
-
-    const total = todayRides.reduce((sum, ride) => {
+  private updateSummaryCards(): void {
+    const total = this.filteredRides.reduce((sum, ride) => {
       return sum + ride.totalValue;
     }, 0);
 
     this.totalDayValue = this.formatCurrency(total);
-    this.totalDaySubtitle = `${todayRides.length} corridas`;
-  }
+    this.totalDaySubtitle = `${this.filteredRides.length} corridas`;
+    this.totalWeekValue = String(this.filteredRides.length);
+    this.totalWeekSubtitle = 'corridas encontradas';
 
-  private updateWeekCards(): void {
-    const today = new Date();
-
-    const startOfWeek = this.getStartOfWeek(today);
-    const endOfWeek = this.getEndOfWeek(today);
-
-    const weekRides = this.rides.filter((rides) => {
-      const rideDate = new Date(rides.occurredAt);
-
-      return rideDate >= startOfWeek && rideDate <= endOfWeek;
-    });
-
-    const total = weekRides.reduce((sum, ride) => {
-      return sum + ride.totalValue;
-    }, 0);
-
-    this.totalWeekValue = this.formatCurrency(total);
-    this.totalWeekSubtitle = `${weekRides.length} corridas`;
-  }
-
-  private updateWeekKmCards(): void {
-    const today = new Date();
-
-    const startOfWeek = this.getStartOfWeek(today);
-    const endOfWeek = this.getEndOfWeek(today);
-
-    const weekRides = this.rides.filter((ride) => {
-      const rideDate = new Date(ride.occurredAt);
-
-      return rideDate >= startOfWeek && rideDate <= endOfWeek;
-    });
-
-    const totalKm = weekRides.reduce((sum, ride) => {
+    const totalKm = this.filteredRides.reduce((sum, ride) => {
       return sum + ride.distanceKm;
     }, 0);
 
-    this.totalWeekKm = `${this.formatNumber(totalKm)}km`
-  }
-
-  private updateAverageValuePerKmSummary(): void {
-    const today = new Date();
-
-    const startOfWeek = this.getStartOfWeek(today);
-    const endOfWeek = this.getEndOfWeek(today);
-
-    const weekRides = this.rides.filter((ride) => {
-      const rideDate = new Date(ride.occurredAt);
-
-      return rideDate >= startOfWeek && rideDate <= endOfWeek;
-    });
-
-    const totalValue = weekRides.reduce((sum, ride) => {
-      return sum + ride.totalValue;
-    }, 0);
-
-    const totalKm = weekRides.reduce((sum, ride) => {
-      return sum + ride.distanceKm;
-    }, 0);
+    this.totalWeekKm = `${this.formatNumber(totalKm)}km`;
 
     if (totalKm === 0) {
       this.averageValuePerKm = 'R$ 0,00/km';
       return
     }
 
-    const average = totalValue / totalKm;
+    const average = total / totalKm;
 
     this.averageValuePerKm = `${this.formatCurrency(average)}/km`
 
@@ -228,33 +182,32 @@ export class RideList implements OnInit {
     return result;
   }
 
+  private parseRideDate(value: string | null | undefined): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const parsedDate = new Date(value);
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return parsedDate;
+    }
+
+    const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:,\s*(\d{2}):(\d{2}))?$/);
+
+    if (!match) {
+      return null;
+    }
+
+    const [, day, month, year, hour = '0', minute = '0'] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+  }
+
   private formatNumber(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1
     }).format(value);
-  }
-
-  private getStartOfWeek(date: Date): Date {
-    const currentDate = new Date(date);
-    const day = currentDate.getDay();
-
-    const diff = day === 0 ? -6 : 1 - day;
-
-    currentDate.setDate(currentDate.getDate() + diff);
-    currentDate.setHours(0, 0, 0, 0);
-
-    return currentDate;
-  }
-
-  private getEndOfWeek(date: Date): Date {
-    const startOfWeek = this.getStartOfWeek(date);
-    const endOfWeek = new Date(startOfWeek);
-
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
-
-    return endOfWeek;
   }
 
   formatCurrency(value: number): string {
@@ -269,7 +222,11 @@ export class RideList implements OnInit {
       return '-';
     }
 
-    const date = new Date(value);
+    const date = this.parseRideDate(value);
+
+    if (!date) {
+      return '-';
+    }
 
     return new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit',

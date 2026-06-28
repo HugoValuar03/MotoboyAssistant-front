@@ -5,6 +5,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -14,15 +15,31 @@ import { FormsModule } from '@angular/forms';
     MatNativeDateModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule
-  ],
+    FormsModule,
+    RouterLink,
+    RouterLinkActive
+],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
+
 export class App {
 
-  startDate: Date | null = new Date(2024, 4, 19);
-  endDate: Date | null = new Date(2024, 4, 25);
+  constructor(private router: Router) {}
+
+  searchTerm = '';
+  startDate: Date | null = null;
+  endDate: Date | null = null;
+
+  clearTopbarFilters(): void {
+    this.searchTerm = '';
+    this.startDate = null;
+    this.endDate = null;
+  }
+
+  goToRides(): void {
+    this.router.navigate(['/corridas']);
+  }
 
   get dateRangeLabel(): string {
     if (!this.startDate || !this.endDate) {
