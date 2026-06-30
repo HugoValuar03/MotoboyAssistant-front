@@ -45,47 +45,47 @@
     </aside>
     <main class="main-content">
         <header class="topbar">
-            <div class="topbar-left">
-                <h2>Listagem de corridas</h2>
-            </div>
-            <div class="topbar-actions">
+            <div class="topbar-left"></div>
+
+            <div class="topbar-center">
                 <div class="search-box">
                     <span class="material-symbols-outlined">search</span>
                     <input type="text" placeholder="Buscar corridas, observações..." [(ngModel)]="searchTerm">
                 </div>
             </div>
-            <div class="topbar-date-range">
-                <div class="date-range-button" (click)="picker.open()">
-                    <span class="material-symbols-outlined calendar-icon">calendar_month</span>
 
-                    <span class="date-range-text">
-                        {{ dateRangeLabel }}
-                    </span>
+            <div class="topbar-right">
+                <div class="topbar-date-range">
+                    <div class="date-range-button" (click)="picker.open()">
+                        <span class="material-symbols-outlined calendar-icon">calendar_month</span>
 
-                    <span class="material-symbols-outlined arrow-icon">expand_more</span>
+                        <span class="date-range-text">
+                            {{ dateRangeLabel }}
+                        </span>
+
+                        <span class="material-symbols-outlined arrow-icon">expand_more</span>
+                    </div>
+
+                    <mat-form-field class="date-range-hidden">
+                        <mat-date-range-input [rangePicker]="picker">
+                            <input matStartDate [(ngModel)]="startDate">
+                            <input matEndDate [(ngModel)]="endDate">
+                        </mat-date-range-input>
+
+                        <mat-date-range-picker #picker></mat-date-range-picker>
+                    </mat-form-field>
                 </div>
 
-                <mat-form-field class="date-range-hidden">
-                    <mat-date-range-input [rangePicker]="picker">
-                        <input matStartDate [(ngModel)]="startDate">
-
-                        <input matEndDate [(ngModel)]="endDate">
-                    </mat-date-range-input>
-
-                    <mat-date-range-picker #picker></mat-date-range-picker>
-                </mat-form-field>
+                <div class="perfil">
+                    <a href="#" class="perfil-button">
+                        <span class="material-symbols-outlined">person</span>
+                    </a>
+                </div>
             </div>
-            <div class="perfil">
-                <a href="#" class="perfil-button">
-                    <span class="material-symbols-outlined">person</span>
-                </a>
-            </div>
-
         </header>
 
         <section class="conteudo">
-            <app-ride-list [topbarSearchTerm]="searchTerm" [topbarStartDate]="startDate" [topbarEndDate]="endDate"
-                (clearTopbarFilters)="clearTopbarFilters()"></app-ride-list>
+            <router-outlet></router-outlet>
         </section>
     </main>
 </div>

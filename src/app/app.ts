@@ -1,23 +1,22 @@
 import { Component } from '@angular/core';
-import { RideList } from './features/rides/pages/ride-list/ride-list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   imports: [
-    RideList,
     MatDatepickerModule,
     MatNativeDateModule,
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
     RouterLink,
-    RouterLinkActive
+    RouterLinkActive,
+    RouterOutlet
 ],
   templateUrl: './app.html',
   styleUrl: './app.scss'

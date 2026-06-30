@@ -9,9 +9,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-ride-list',
-  standalone: true,
   imports: [CommonModule, FormsModule, SummaryCard, MatDatepickerModule, MatFormFieldModule, MatInputModule],
   templateUrl: './ride-list.html',
   styleUrl: './ride-list.scss',
@@ -39,7 +40,7 @@ export class RideList implements OnInit, OnChanges {
   totalWeekKm = '0,0km';
   averageValuePerKm = 'R$ 0,00/km';
 
-  constructor(private rideService: RideService) { }
+  constructor(private rideService: RideService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadRides();
@@ -236,4 +237,9 @@ export class RideList implements OnInit, OnChanges {
       minute: '2-digit'
     }).format(date);
   }
+
+  goToForm(): void {
+    this.router.navigate(['/corridas/form'])
+  }
+
 }

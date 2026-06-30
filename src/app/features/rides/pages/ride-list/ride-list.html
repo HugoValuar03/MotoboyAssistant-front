@@ -5,11 +5,11 @@
   <p class="legenda-page">Acompanhe suas corridas, ganhos e desempenho</p>
 
   <section class="summary-grid">
-    <app-summary-card title="Total do período" [value]="totalDayValue" [subtitle]="totalDaySubtitle"
-      icon="attach_money" color="green">
+    <app-summary-card title="Total do período" [value]="totalDayValue" [subtitle]="totalDaySubtitle" icon="attach_money"
+      color="green">
     </app-summary-card>
-    <app-summary-card title="Corridas" [value]="totalWeekValue" [subtitle]="totalWeekSubtitle"
-      icon="calendar_month" color="blue">
+    <app-summary-card title="Corridas" [value]="totalWeekValue" [subtitle]="totalWeekSubtitle" icon="calendar_month"
+      color="blue">
     </app-summary-card>
     <app-summary-card title="Km Rodados" [value]="totalWeekKm" subtitle="No período" icon="route"
       color="purple"></app-summary-card>
@@ -33,7 +33,7 @@
         <label>Buscar por observação</label>
 
         <div class="search-input">
-          <input type="text" placeholder="Ex.: cliente, endereço, etc." [(ngModel)]="searchTerm"
+          <input matInput type="text" placeholder="Ex.: cliente, endereço, etc." [(ngModel)]="searchTerm"
             (input)="applyFilters()" />
 
           <span class="material-symbols-outlined">search</span>
@@ -45,10 +45,11 @@
         Limpar filtros
       </button>
 
-      <button class="new-button" type="button">
+      <button class="new-button" type="button" (click)="goToForm()">
         <span class="material-symbols-outlined">add</span>
         Nova Corrida
       </button>
+
     </div>
 
     <div class="table-wrapper">

@@ -1,0 +1,264 @@
+.ride-form {
+    padding: 32px;
+}
+
+.titulo-page {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.legenda-page {
+    margin: 10px 0 26px;
+    font-size: 15px;
+    color: #64748b;
+}
+
+.ride-form-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 24px;
+    align-items: start;
+}
+
+.section-form,
+.ride-summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.section-form {
+    padding: 24px;
+}
+
+.form-title,
+.summary-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .material-symbols-outlined {
+        color: #2563eb;
+        font-size: 24px;
+    }
+}
+
+.titulo-form,
+.summary-title h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.campos-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    column-gap: 24px;
+    row-gap: 18px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+}
+
+.titulo-campo {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+.input-icon {
+    margin-right: 8px;
+    color: #64748b;
+    font-size: 21px;
+}
+
+.form-actions {
+    margin-top: 26px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.cancel-button,
+.secondary-button,
+.primary-button {
+    height: 46px;
+    padding: 0 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.cancel-button {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+}
+
+.secondary-button {
+    background-color: #ffffff;
+    border: 1px solid #2563eb;
+    color: #2563eb;
+}
+
+.primary-button {
+    background-color: #2563eb;
+    border: 1px solid #2563eb;
+    color: #ffffff;
+
+    &:hover {
+        background-color: #1d4ed8;
+    }
+
+    .material-symbols-outlined {
+        font-size: 20px;
+    }
+}
+
+.ride-summary-card {
+    padding: 24px;
+}
+
+.summary-highlight {
+    min-height: 120px;
+    padding: 20px;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #eff6ff, #ffffff);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+
+    span {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+        color: #334155;
+    }
+
+    strong {
+        display: block;
+        margin-top: 10px;
+        font-size: 26px;
+        font-weight: 900;
+        color: #2563eb;
+    }
+
+    p {
+        margin: 8px 0 0;
+        font-size: 13px;
+        color: #2563eb;
+    }
+}
+
+.summary-bike-icon {
+    font-size: 72px !important;
+    color: rgba(37, 99, 235, 0.18) !important;
+}
+
+.summary-list {
+    margin-top: 22px;
+}
+
+.summary-item {
+    padding: 14px 0;
+    border-bottom: 1px dashed #dbe3ef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+
+    div {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    span {
+        font-size: 22px;
+        color: #476282;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+        color: #334155;
+    }
+
+    strong {
+        font-size: 14px;
+        font-weight: 800;
+        color: #0f172a;
+        white-space: nowrap;
+    }
+}
+
+.summary-alert {
+    margin-top: 28px;
+    padding: 16px;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    background-color: #f8fbff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    span {
+        color: #2563eb;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+        color: #64748b;
+        line-height: 1.4;
+    }
+}
+
+@media (max-width: 1200px) {
+    .ride-form-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ride-summary-card {
+        max-width: none;
+    }
+}
+
+@media (max-width: 760px) {
+    .ride-form {
+        padding: 20px;
+    }
+
+    .campos-form {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .cancel-button,
+    .secondary-button,
+    .primary-button {
+        width: 100%;
+    }
+}

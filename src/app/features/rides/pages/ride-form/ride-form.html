@@ -1,0 +1,167 @@
+<section class="ride-form">
+    <h1 class="titulo-page">Cadastro de Corrida</h1>
+
+    <p class="legenda-page">
+        Registre uma nova corrida e acompanhe seus ganhos.
+    </p>
+
+    <div class="ride-form-layout">
+        <section class="section-form">
+            <div class="form-title">
+                <span class="material-symbols-outlined">person</span>
+                <h2 class="titulo-form">Informações da corrida</h2>
+            </div>
+
+            <section class="campos-form">
+                <div class="campo">
+                    <h3 class="titulo-campo">Plataforma</h3>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Selecione a plataforma</mat-label>
+
+                        <mat-select [(ngModel)]="ride.platforms">
+                            @for (platform of platforms; track platform.value) {
+                            <mat-option [value]="platform.value">
+                                {{ platform.label }}
+                            </mat-option>
+                            }
+                        </mat-select>
+
+                        <span matSuffix class="material-symbols-outlined input-icon">apps</span>
+                    </mat-form-field>
+                </div>
+
+                <div class="campo">
+                    <h3 class="titulo-campo">Data da corrida</h3>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Data da corrida</mat-label>
+
+                        <input matInput [matDatepicker]="picker" [(ngModel)]="rideDate" placeholder="Data da corrida">
+
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+
+                <div class="campo">
+                    <h3 class="titulo-campo">Horário</h3>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Horário</mat-label>
+
+                        <input matInput [matTimepicker]="timepicker" [(ngModel)]="rideTime" placeholder="Horário">
+
+                        <mat-timepicker-toggle matIconSuffix [for]="timepicker"></mat-timepicker-toggle>
+
+                        <mat-timepicker #timepicker></mat-timepicker>
+                    </mat-form-field>
+                </div>
+
+                <div class="campo">
+                    <h3 class="titulo-campo">Distância (km)</h3>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Digite a distância</mat-label>
+
+                        <input matInput type="number" min="0" step="0.1" placeholder="Digite a distância"
+                            [(ngModel)]="ride.distanceKm">
+
+                        <span matSuffix class="material-symbols-outlined input-icon">straighten</span>
+                    </mat-form-field>
+                </div>
+
+                <div class="campo">
+                    <h3 class="titulo-campo">Valor recebido</h3>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Valor recebido</mat-label>
+
+                        <span matTextPrefix>R$&nbsp;</span>
+
+                        <input matInput type="number" min="0" step="0.01" placeholder="Valor recebido"
+                            [(ngModel)]="ride.totalValue">
+
+                        <span matSuffix class="material-symbols-outlined input-icon">paid</span>
+                    </mat-form-field>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <button class="cancel-button" type="button">
+                    Cancelar
+                </button>
+
+                <button class="secondary-button" type="button">
+                    Salvar e nova
+                </button>
+
+                <button class="primary-button" type="button">
+                    <span class="material-symbols-outlined">save</span>
+                    Salvar corrida
+                </button>
+            </div>
+        </section>
+
+        <aside class="ride-summary-card">
+            <div class="summary-title">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <h2>Resumo da corrida</h2>
+            </div>
+
+            <div class="summary-highlight">
+                <div>
+                    <span>Valor por km</span>
+                    <strong>{{ valuePerKmFormatted }}</strong>
+                    <p>Será calculado ao salvar</p>
+                </div>
+
+                <span class="material-symbols-outlined summary-bike-icon">two_wheeler</span>
+            </div>
+
+            <div class="summary-list">
+                <div class="summary-item">
+                    <div>
+                        <span class="material-symbols-outlined">paid</span>
+                        <p>Valor total</p>
+                    </div>
+
+                    <strong>{{ totalValueFormatted }}</strong>
+                </div>
+
+                <div class="summary-item">
+                    <div>
+                        <span class="material-symbols-outlined">straighten</span>
+                        <p>Distância</p>
+                    </div>
+
+                    <strong>{{ distanceFormatted }}</strong>
+                </div>
+
+                <div class="summary-item">
+                    <div>
+                        <span class="material-symbols-outlined">conversion_path</span>
+                        <p>Valor por km</p>
+                    </div>
+
+                    <strong>{{ valuePerKmFormatted }}</strong>
+                </div>
+
+                <div class="summary-item">
+                    <div>
+                        <span class="material-symbols-outlined">apps</span>
+                        <p>Plataforma</p>
+                    </div>
+
+                    <strong>{{ selectedPlatformLabel }}</strong>
+                </div>
+            </div>
+
+            <div class="summary-alert">
+                <span class="material-symbols-outlined">info</span>
+                <p>Preencha os campos ao lado para visualizar o resumo da corrida.</p>
+            </div>
+        </aside>
+    </div>
+</section>
