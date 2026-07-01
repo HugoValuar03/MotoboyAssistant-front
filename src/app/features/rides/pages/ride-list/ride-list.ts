@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Ride } from '../../models/ride.model';
-import { RideService } from '../../services/ride';
+import { RideService } from '../../services/rideService';
 import { SummaryCard } from '../../../dashboard/components/summary-card/summary-card';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -240,6 +240,10 @@ export class RideList implements OnInit, OnChanges {
 
   goToForm(): void {
     this.router.navigate(['/corridas/form'])
+  }
+
+  goToEdit(id: string): void {
+    this.router.navigate(['/corridas', id, 'editar']);
   }
 
 }

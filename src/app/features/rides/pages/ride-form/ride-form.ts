@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { PlatformService } from '../../services/ridePlatformService';
 import { RidePlatform } from '../../models/ride-platform.model';
 import { MatTimepickerModule } from '@angular/material/timepicker';
+import { RideService } from '../../services/rideService';
+import { CommonModule } from '@angular/common'; 
 
 @Component({
   selector: 'app-ride-form',
@@ -20,7 +22,9 @@ import { MatTimepickerModule } from '@angular/material/timepicker';
     MatInputModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatTimepickerModule],
+    MatTimepickerModule,
+    CommonModule
+],
   templateUrl: './ride-form.html',
   styleUrl: './ride-form.scss',
 })
@@ -30,23 +34,36 @@ export class RideForm {
 
   ride = {
     platforms: '',
-    distanceKm: null,
-    totalValue: null,
-    occurredAt: null,
+    distanceKm: null as number | null,
+    totalValue: null as number | null,
     notes: ''
   };
 
   rideDate: Date | null = null;
 
-  rideTime: string = '--:--';
+  rideTime: Date | null = null;
+
+  rideId: string | null = null;
+
+  isEditMode = false;
 
   constructor(
     private router: Router,
-    private ridePlatformService: PlatformService
+    private route: ActivatedRoute,
+    private ridePlatformService: PlatformService,
+    private rideService: RideService
   ) { }
 
   ngOnInit(): void {
     this.loadPlatforms();
+
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (id) {
+      this.rideId = id;
+      this.isEditMode = true;
+      this.loadRide(id);
+    }
   }
 
   loadPlatforms(): void {
@@ -96,6 +113,31 @@ export class RideForm {
     return platform?.label ?? '-';
   }
 
+  private loadRide(id: string): void {
+    this.rideService.findById(id).subscribe({
+      next: (ride) => {
+
+        console.log('Corrida retornada pelo backend:', ride);
+
+        const occurredAt = new Date(ride.occurredAt);
+
+        this.ride = {
+          platforms: ride.platform,
+          distanceKm: ride.distanceKm,
+          totalValue: ride.totalValue,
+          notes: ride.notes ?? ''
+        };
+
+        this.rideDate = occurredAt;
+        this.rideTime = occurredAt;
+      },
+      error: (error) => {
+        console.error('Erro ao buscar corrida:', error);
+        this.router.navigate(['/corridas']);
+      }
+    });
+  }
+
   private formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -108,6 +150,128 @@ export class RideForm {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(value);
+  }
+
+  private montarRequestCorrida(): RideCreateRequest | null {
+    const rideDate = this.rideDate;
+    const rideTime = this.rideTime;
+
+    if (!this.ride.platforms) {
+      console.error('Selecione uma plataforma');
+      return null;
+    }
+
+    if (!rideDate) {
+      console.error('Informe a data da corrida');
+      return null;
+    }
+
+    if (!rideTime) {
+      console.error('Informe o horário da corrida');
+      return null;
+    }
+
+    if (!this.ride.distanceKm || this.ride.distanceKm <= 0) {
+      console.error('Digite uma distância válida');
+      return null;
+    }
+
+    if (!this.ride.totalValue || this.ride.totalValue <= 0) {
+      console.error('Informe um valor recebido válido');
+      return null;
+    }
+
+    const occurredAt = this.buildOccurredAt(rideDate, rideTime);
+
+    return {
+      platform: this.ride.platforms,
+      distanceKm: this.ride.distanceKm,
+      totalValue: this.ride.totalValue,
+      occurredAt: occurredAt,
+      notes: this.ride.notes
+    };
+
+  }
+
+  private buildOccurredAt(date: Date, time: Date): string {
+    const occurredAt = new Date(date);
+
+    occurredAt.setHours(
+      time.getHours(),
+      time.getMinutes(),
+      0,
+      0
+    );
+
+    return occurredAt.toISOString();
+  }
+
+  protected salvarCorridaRoute() {
+
+    const request = this.montarRequestCorrida();
+
+    if (!request) {
+      return;
+    }
+
+    if (this.isEditMode && this.rideId) {
+      this.rideService.update(this.rideId, request).subscribe({
+        next: () => {
+          console.log('Corrida atualizada com sucesso');
+          this.router.navigate(['/corridas']);
+        },
+        error: (error) => {
+          console.error('Error ao atualizar corrida', error);
+        }
+      });
+
+      return;
+    }
+
+    this.rideService.create(request).subscribe({
+      next: () => {
+        console.log('Corrida cadastrada com sucesso');
+        this.router.navigate(['/corridas']);
+      },
+      error: (error) => {
+        console.error('Erro ao cadastrar corrida', error);
+      }
+    });
+
+  }
+
+  protected salvarEContinuarRoute() {
+    const request = this.montarRequestCorrida();
+
+    if (!request) {
+      return;
+    }
+
+    this.rideService.create(request).subscribe({
+      next: () => {
+        console.log('Corrida cadastrada com sucesso');
+        this.limparFormulario();
+      },
+      error: (error) => {
+        console.error('Erro ao cadastrar corrida', error);
+      }
+    });
+  }
+
+  private limparFormulario() {
+    this.ride = {
+      platforms: '',
+      distanceKm: null,
+      totalValue: null,
+      notes: ''
+    };
+
+    this.rideDate = null;
+    this.rideTime = null;
+  }
+
+  protected cancelRoute() {
+    this.router.navigate(['/corridas']);
   }
 
 }

@@ -12,6 +12,10 @@ export const routes: Routes = [
         component: RideForm
     },
     {
+        path: 'corridas/:id/editar',
+        component: RideForm
+    },
+    {
         path: '',
         redirectTo: 'corridas',
         pathMatch: 'full'

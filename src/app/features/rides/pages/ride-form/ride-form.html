@@ -1,8 +1,10 @@
 <section class="ride-form">
-    <h1 class="titulo-page">Cadastro de Corrida</h1>
+    <h1 class="titulo-page">
+        {{ isEditMode ? 'Editar Corrida' : 'Cadastro de Corrida' }}
+    </h1>
 
     <p class="legenda-page">
-        Registre uma nova corrida e acompanhe seus ganhos.
+        {{ isEditMode ? 'Atualize os dados da corrida.' : 'Registre uma nova corrida e acompanhe seus ganhos.' }}
     </p>
 
     <div class="ride-form-layout">
@@ -17,17 +19,14 @@
                     <h3 class="titulo-campo">Plataforma</h3>
 
                     <mat-form-field appearance="outline">
-                        <mat-label>Selecione a plataforma</mat-label>
 
-                        <mat-select [(ngModel)]="ride.platforms">
+                        <mat-select [(ngModel)]="ride.platforms" placeholder="Selecione uma plataforma">
                             @for (platform of platforms; track platform.value) {
                             <mat-option [value]="platform.value">
                                 {{ platform.label }}
                             </mat-option>
                             }
                         </mat-select>
-
-                        <span matSuffix class="material-symbols-outlined input-icon">apps</span>
                     </mat-form-field>
                 </div>
 
@@ -35,9 +34,8 @@
                     <h3 class="titulo-campo">Data da corrida</h3>
 
                     <mat-form-field appearance="outline">
-                        <mat-label>Data da corrida</mat-label>
 
-                        <input matInput [matDatepicker]="picker" [(ngModel)]="rideDate" placeholder="Data da corrida">
+                        <input matInput [matDatepicker]="picker" [(ngModel)]="rideDate" placeholder="Selecione a Data">
 
                         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
 
@@ -49,8 +47,6 @@
                     <h3 class="titulo-campo">Horário</h3>
 
                     <mat-form-field appearance="outline">
-                        <mat-label>Horário</mat-label>
-
                         <input matInput [matTimepicker]="timepicker" [(ngModel)]="rideTime" placeholder="Horário">
 
                         <mat-timepicker-toggle matIconSuffix [for]="timepicker"></mat-timepicker-toggle>
@@ -63,7 +59,6 @@
                     <h3 class="titulo-campo">Distância (km)</h3>
 
                     <mat-form-field appearance="outline">
-                        <mat-label>Digite a distância</mat-label>
 
                         <input matInput type="number" min="0" step="0.1" placeholder="Digite a distância"
                             [(ngModel)]="ride.distanceKm">
@@ -76,7 +71,6 @@
                     <h3 class="titulo-campo">Valor recebido</h3>
 
                     <mat-form-field appearance="outline">
-                        <mat-label>Valor recebido</mat-label>
 
                         <span matTextPrefix>R$&nbsp;</span>
 
@@ -86,20 +80,32 @@
                         <span matSuffix class="material-symbols-outlined input-icon">paid</span>
                     </mat-form-field>
                 </div>
+
+                <div class="campo">
+                    <h3 class="titulo-campo">Observações</h3>
+
+                    <mat-form-field appearance="outline">
+
+                        <input matInput type="text" maxlength="255" placeholder="Digite alguma nota sobre a corrida"
+                            [(ngModel)]="ride.notes">
+
+                        <span matSuffix class="material-symbols-outlined input-icon">notes</span>
+                    </mat-form-field>
+                </div>
             </section>
 
             <div class="form-actions">
-                <button class="cancel-button" type="button">
+                <button class="cancel-button" type="button" (click)="cancelRoute()">
                     Cancelar
                 </button>
 
-                <button class="secondary-button" type="button">
+                <button class="secondary-button" type="button" (click)="salvarEContinuarRoute()" *ngIf="!isEditMode">
                     Salvar e nova
                 </button>
 
-                <button class="primary-button" type="button">
+                <button class="primary-button" type="button" (click)="salvarCorridaRoute()">
                     <span class="material-symbols-outlined">save</span>
-                    Salvar corrida
+                    {{ isEditMode ? 'Atualizar Corrida' : 'Salvar Corrida' }}
                 </button>
             </div>
         </section>
