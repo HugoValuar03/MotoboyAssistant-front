@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { TopbarFilter } from './shared/services/topbar-filter.service';
 
 @Component({
   selector: 'app-root',
@@ -17,23 +18,33 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
     RouterLink,
     RouterLinkActive,
     RouterOutlet
-],
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 
 export class App {
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private topbarFilterService: TopbarFilter) { }
 
   searchTerm = '';
   startDate: Date | null = null;
   endDate: Date | null = null;
 
+  applyTopbarFilters(): void {
+    this.topbarFilterService.updateFilters({
+      searchTerm: this.searchTerm,
+      startDate: this.startDate,
+      endDate: this.endDate
+    });
+  }
+
   clearTopbarFilters(): void {
     this.searchTerm = '';
     this.startDate = null;
     this.endDate = null;
+
+    this.topbarFilterService.clearFilters();
   }
 
   goToRides(): void {

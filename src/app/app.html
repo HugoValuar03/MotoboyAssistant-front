@@ -50,7 +50,7 @@
             <div class="topbar-center">
                 <div class="search-box">
                     <span class="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Buscar corridas, observações..." [(ngModel)]="searchTerm">
+                    <input type="text" placeholder="Buscar corridas, observações..." [(ngModel)]="searchTerm" (input)="applyTopbarFilters()">
                 </div>
             </div>
 
@@ -68,8 +68,8 @@
 
                     <mat-form-field class="date-range-hidden">
                         <mat-date-range-input [rangePicker]="picker">
-                            <input matStartDate [(ngModel)]="startDate">
-                            <input matEndDate [(ngModel)]="endDate">
+                            <input matStartDate [(ngModel)]="startDate" (dateChange)="applyTopbarFilters()">
+                            <input matEndDate [(ngModel)]="endDate" (dateChange)="applyTopbarFilters()">
                         </mat-date-range-input>
 
                         <mat-date-range-picker #picker></mat-date-range-picker>

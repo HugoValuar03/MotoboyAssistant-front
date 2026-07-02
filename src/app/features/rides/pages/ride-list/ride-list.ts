@@ -1,32 +1,40 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Ride } from '../../models/ride.model';
-import { RideService } from '../../services/rideService';
+import { RideService } from '../../services/ride.service';
 import { SummaryCard } from '../../../dashboard/components/summary-card/summary-card';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+
+import { TopbarFilter, TopbarFilters } from '../../../../shared/services/topbar-filter.service';
 
 import { Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-ride-list',
-  imports: [CommonModule, FormsModule, SummaryCard, MatDatepickerModule, MatFormFieldModule, MatInputModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    SummaryCard,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDialogModule,
+  ],
   templateUrl: './ride-list.html',
   styleUrl: './ride-list.scss',
 })
 
-export class RideList implements OnInit, OnChanges {
+export class RideList implements OnInit {
 
   rides: Ride[] = [];
   filteredRides: Ride[] = [];
-
-  @Input() topbarSearchTerm = '';
-  @Input() topbarStartDate: Date | null = null;
-  @Input() topbarEndDate: Date | null = null;
-  @Output() clearTopbarFilters = new EventEmitter<void>();
 
   selectedPlatform = 'ALL';
   searchTerm = '';
@@ -40,26 +48,30 @@ export class RideList implements OnInit, OnChanges {
   totalWeekKm = '0,0km';
   averageValuePerKm = 'R$ 0,00/km';
 
-  constructor(private rideService: RideService, private router: Router) { }
+  topbarFilters: TopbarFilters = {
+    searchTerm: '',
+    startDate: null,
+    endDate: null
+  }
+
+  constructor(private rideService: RideService, private router: Router, private dialog: MatDialog, private topbarFilterService: TopbarFilter) { }
 
   ngOnInit(): void {
     this.loadRides();
-  }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!this.rides.length) {
-      return;
-    }
+    this.topbarFilterService.filters$.subscribe((filters) => {
+      this.topbarFilters = filters;
 
-    if (changes['topbarStartDate'] || changes['topbarEndDate'] || changes['topbarSearchTerm']) {
-      this.applyFilters();
-    }
+      if (this.rides.length) {
+        this.applyFilters();
+      }
+    });
   }
 
   loadRides(): void {
     this.rideService.findAll().subscribe({
       next: (data) => {
-        this.rides = data;
+        this.rides = [...data];
         this.applyFilters();
       },
       error: (error) => {
@@ -90,7 +102,7 @@ export class RideList implements OnInit, OnChanges {
       const matchesPlatform =
         this.selectedPlatform === 'ALL' || ride.platform === this.selectedPlatform;
 
-      const search = [this.searchTerm, this.topbarSearchTerm]
+      const search = [this.searchTerm, this.topbarFilters.searchTerm]
         .map((term) => term.trim().toLowerCase())
         .filter(Boolean);
 
@@ -103,8 +115,8 @@ export class RideList implements OnInit, OnChanges {
 
       const rideDate = this.parseRideDate(ride.occurredAt);
 
-      const startDateSource = this.startDateFilter || this.topbarStartDate;
-      const endDateSource = this.endDateFilter || this.topbarEndDate;
+      const startDateSource = this.startDateFilter || this.topbarFilters.startDate;
+      const endDateSource = this.endDateFilter || this.topbarFilters.endDate;
 
       const startDate = startDateSource ? this.getStartOfDay(startDateSource) : null;
       const endDate = endDateSource ? this.getEndOfDay(endDateSource) : null;
@@ -124,7 +136,9 @@ export class RideList implements OnInit, OnChanges {
     this.searchTerm = '';
     this.startDateFilter = null;
     this.endDateFilter = null;
-    this.clearTopbarFilters.emit();
+
+    this.topbarFilterService.clearFilters();
+
     this.applyFilters();
   }
 
@@ -246,4 +260,32 @@ export class RideList implements OnInit, OnChanges {
     this.router.navigate(['/corridas', id, 'editar']);
   }
 
+  confirmDelete(ride: Ride): void {
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '420px',
+      data: {
+        title: 'Excluir corrida',
+        message: 'Tem certeza que deseja excluir esta corrida?',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.rideService.delete(ride.id).subscribe({
+        next: () => {
+          this.rides = this.rides.filter((item) => item.id !== ride.id);
+          this.applyFilters();
+        },
+        error: (error) => {
+          console.error('Erro ao excluir corrida:', error);
+        }
+      });
+    });
+  }
 }
+

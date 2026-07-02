@@ -7,11 +7,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import { PlatformService } from '../../services/ridePlatformService';
+import { PlatformService } from '../../services/ride-platform.service';
 import { RidePlatform } from '../../models/ride-platform.model';
 import { MatTimepickerModule } from '@angular/material/timepicker';
-import { RideService } from '../../services/rideService';
-import { CommonModule } from '@angular/common'; 
+import { RideService } from '../../services/ride.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-ride-form',
@@ -24,7 +24,7 @@ import { CommonModule } from '@angular/common';
     MatSelectModule,
     MatTimepickerModule,
     CommonModule
-],
+  ],
   templateUrl: './ride-form.html',
   styleUrl: './ride-form.scss',
 })
@@ -51,7 +51,7 @@ export class RideForm {
     private router: Router,
     private route: ActivatedRoute,
     private ridePlatformService: PlatformService,
-    private rideService: RideService
+    private rideService: RideService,
   ) { }
 
   ngOnInit(): void {
@@ -203,7 +203,14 @@ export class RideForm {
       0
     );
 
-    return occurredAt.toISOString();
+    const year = occurredAt.getFullYear();
+    const month = String(occurredAt.getMonth() + 1).padStart(2, '0');
+    const day = String(occurredAt.getDate()).padStart(2, '0');
+    const hours = String(occurredAt.getHours()).padStart(2, '0');
+    const minutes = String(occurredAt.getMinutes()).padStart(2, '0');
+    const seconds = '00';
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 
   protected salvarCorridaRoute() {
