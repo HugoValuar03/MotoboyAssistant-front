@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { ConfirmDialog } from './confirm-dialog';
 
@@ -9,6 +10,23 @@ describe('ConfirmDialog', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ConfirmDialog],
+      providers: [
+        {
+          provide: MatDialogRef,
+          useValue: {
+            close: () => undefined,
+          },
+        },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            title: 'Excluir corrida',
+            message: 'Tem certeza que deseja excluir esta corrida?',
+            confirmText: 'Excluir',
+            cancelText: 'Cancelar',
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConfirmDialog);

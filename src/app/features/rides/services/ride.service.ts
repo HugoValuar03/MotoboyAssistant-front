@@ -1,18 +1,31 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Ride } from '../models/ride.model';
+import { RideSummary } from '../models/ride-summary.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RideService {
-  private readonly apiUrl = 'http://localhost:8080/api/corridas';
+  private readonly apiUrl = environment.apiUrl + '/api/corridas';
 
-  constructor(private http: HttpClient){}
+  constructor(private http: HttpClient) { }
 
-  findAll(): Observable<Ride[]> {
-    return this.http.get<Ride[]>(this.apiUrl);
+  findAll(page: number, pageSize: number): Observable<Ride[]> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    return this.http.get<Ride[]>(this.apiUrl, { params });
+  }
+  summary(): Observable<RideSummary> {
+    return this.http.get<RideSummary>(`${this.apiUrl}/resumo`)
+  }
+
+  count(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/count`)
   }
 
   findById(id: string): Observable<Ride> {
@@ -23,7 +36,7 @@ export class RideService {
     return this.http.post<Ride>(this.apiUrl, ride);
   }
 
-  update(id: string,ride: Partial<Ride>): Observable<Ride> {
+  update(id: string, ride: Partial<Ride>): Observable<Ride> {
     return this.http.put<Ride>(`${this.apiUrl}/${id}`, ride);
   }
 

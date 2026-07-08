@@ -60,6 +60,9 @@
             <th>Distância</th>
             <th>Valor total</th>
             <th>Valor por km</th>
+
+            <th>Taxa de espera</th>
+            <th>Gorjeta</th>
             <th>Data/Hora</th>
             <th>Observações</th>
             <th>Ações</th>
@@ -83,6 +86,14 @@
 
             <td>
               {{ formatCurrency(ride.valuePerKm) }}/km
+            </td>
+
+            <td>
+              {{ formatCurrency(ride.waitingFee) }}
+            </td>
+
+            <td>
+              {{ formatCurrency(ride.tip) }}
             </td>
 
             <td>
@@ -112,6 +123,13 @@
           }
         </tbody>
       </table>
+      <mat-paginator 
+        (page)="paginar($event)" 
+        [length]="totalRecords" 
+        [pageIndex]="page"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 15, 20]">
+      </mat-paginator>
     </div>
   </section>
 </section>

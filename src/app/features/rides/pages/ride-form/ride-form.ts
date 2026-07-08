@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,9 @@ import { RidePlatform } from '../../models/ride-platform.model';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { RideService } from '../../services/ride.service';
 import { CommonModule } from '@angular/common';
+import { RideCreateRequest } from '../../models/ride-create-request.model';
+import { MessageDialog } from '../../../../shared/components/message-dialog/message-dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-ride-form',
@@ -36,12 +39,15 @@ export class RideForm {
     platforms: '',
     distanceKm: null as number | null,
     totalValue: null as number | null,
-    notes: ''
+    notes: '',
+    occurredAt: '',
+    waitingFee: null as number | null,
+    tip: null as number | null
   };
 
-  rideDate: Date | null = null;
+  rideDate: string | null = null;
 
-  rideTime: Date | null = null;
+  rideTime: string | null = null;
 
   rideId: string | null = null;
 
@@ -52,6 +58,8 @@ export class RideForm {
     private route: ActivatedRoute,
     private ridePlatformService: PlatformService,
     private rideService: RideService,
+    private dialog: MatDialog,
+    private changeDetectorRef: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -67,12 +75,10 @@ export class RideForm {
   }
 
   loadPlatforms(): void {
-    console.log('Buscando plataformas...');
-
     this.ridePlatformService.findAll().subscribe({
       next: (data) => {
-        console.log('Plataformas retornadas:', data);
         this.platforms = data;
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Erro ao buscar plataformas:', error);
@@ -81,7 +87,21 @@ export class RideForm {
   }
 
   get totalValueFormatted(): string {
-    return this.formatCurrency(this.ride.totalValue ?? 0);
+    const totalValue = (this.ride.totalValue ?? 0) + (this.ride.waitingFee ?? 0) + (this.ride.tip ?? 0);
+
+    return this.formatCurrency(totalValue ?? 0);
+  }
+
+  get waitingFeeFormatted(): string {
+    const waitingFee = (this.ride.waitingFee ?? 0);
+
+    return this.formatCurrency(waitingFee);
+  }
+
+  get tipFormatted(): string {
+    const tip = (this.ride.tip ?? 0);
+
+    return this.formatCurrency(tip)
   }
 
   get distanceFormatted(): string {
@@ -116,26 +136,42 @@ export class RideForm {
   private loadRide(id: string): void {
     this.rideService.findById(id).subscribe({
       next: (ride) => {
-
-        console.log('Corrida retornada pelo backend:', ride);
-
-        const occurredAt = new Date(ride.occurredAt);
-
         this.ride = {
           platforms: ride.platform,
           distanceKm: ride.distanceKm,
           totalValue: ride.totalValue,
-          notes: ride.notes ?? ''
+          occurredAt: ride.occurredAt,
+          notes: ride.notes ?? '',
+          waitingFee: ride.waitingFee ?? 0,
+          tip: ride.tip ?? 0
         };
 
-        this.rideDate = occurredAt;
-        this.rideTime = occurredAt;
+        this.rideDate = this.formatDateFromBackend(ride.occurredAt);
+        this.rideTime = this.formatTimeFromBackend(ride.occurredAt);
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Erro ao buscar corrida:', error);
         this.router.navigate(['/corridas']);
       }
     });
+  }
+
+  private formatDateFromBackend(occuredAt: string): string {
+    const [datePart] = occuredAt.split('T');
+    const [year, month, day] = datePart.split('-');
+
+    return `${day}/${month}/${year}`;
+  }
+
+  private formatTimeFromBackend(occuredAt: string): string {
+    const [, timePart] = occuredAt.split('T');
+
+    if (!timePart) {
+      return '';
+    }
+
+    return timePart.substring(0, 5);
   }
 
   private formatCurrency(value: number): string {
@@ -188,29 +224,75 @@ export class RideForm {
       distanceKm: this.ride.distanceKm,
       totalValue: this.ride.totalValue,
       occurredAt: occurredAt,
-      notes: this.ride.notes
+      notes: this.ride.notes,
+      waitingFee: (this.ride.waitingFee ?? 0),
+      tip: (this.ride.tip ?? 0)
     };
 
   }
 
-  private buildOccurredAt(date: Date, time: Date): string {
-    const occurredAt = new Date(date);
+  private buildOccurredAt(date: string, time: string): string {
+    const [day, month, year] = date.split('/');
+    const [hours, minutes] = time.split(':');
 
-    occurredAt.setHours(
-      time.getHours(),
-      time.getMinutes(),
-      0,
-      0
-    );
+    return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+  }
 
-    const year = occurredAt.getFullYear();
-    const month = String(occurredAt.getMonth() + 1).padStart(2, '0');
-    const day = String(occurredAt.getDate()).padStart(2, '0');
-    const hours = String(occurredAt.getHours()).padStart(2, '0');
-    const minutes = String(occurredAt.getMinutes()).padStart(2, '0');
-    const seconds = '00';
+  protected formatDateInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
 
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length > 8) {
+      value = value.substring(0, 8);
+    }
+
+    if (value.length > 4) {
+      value = value.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
+    } else if (value.length > 2) {
+      value = value.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+    }
+
+    input.value = value;
+
+    this.rideDate = value;
+  }
+
+  protected formatTimeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length > 4) {
+      value = value.substring(0, 4);
+    }
+
+    if (value.length >= 2) {
+      let hour = Number(value.substring(0, 2));
+
+      if (hour > 23) {
+        hour = 23;
+      }
+
+      value = hour.toString().padStart(2, '0') + value.substring(2);
+    }
+
+    if (value.length >= 4) {
+      let minute = Number(value.substring(2, 4));
+
+      if (minute > 59) {
+        minute = 59;
+      }
+
+      value = value.substring(0, 2) + minute.toString().padStart(2, '0');
+    }
+
+    if (value.length > 2) {
+      value = value.replace(/(\d{2})(\d{1,2})/, '$1:$2');
+    }
+
+    input.value = value;
+    this.rideTime = value;
   }
 
   protected salvarCorridaRoute() {
@@ -224,7 +306,12 @@ export class RideForm {
     if (this.isEditMode && this.rideId) {
       this.rideService.update(this.rideId, request).subscribe({
         next: () => {
-          console.log('Corrida atualizada com sucesso');
+          this.dialog.open(MessageDialog, {
+            width: '420px',
+            data: {
+              message: 'Corrida excluída com sucesso.'
+            }
+          });
           this.router.navigate(['/corridas']);
         },
         error: (error) => {
@@ -237,14 +324,18 @@ export class RideForm {
 
     this.rideService.create(request).subscribe({
       next: () => {
-        console.log('Corrida cadastrada com sucesso');
+        this.dialog.open(MessageDialog, {
+          width: '420px',
+          data: {
+            message: 'Corrida cadastrada com sucesso.'
+          }
+        });
         this.router.navigate(['/corridas']);
       },
       error: (error) => {
         console.error('Erro ao cadastrar corrida', error);
       }
     });
-
   }
 
   protected salvarEContinuarRoute() {
@@ -256,7 +347,12 @@ export class RideForm {
 
     this.rideService.create(request).subscribe({
       next: () => {
-        console.log('Corrida cadastrada com sucesso');
+        this.dialog.open(MessageDialog, {
+          width: '420px',
+          data: {
+            message: 'Corrida cadastrada com sucesso.'
+          }
+        });
         this.limparFormulario();
       },
       error: (error) => {
@@ -270,7 +366,10 @@ export class RideForm {
       platforms: '',
       distanceKm: null,
       totalValue: null,
-      notes: ''
+      notes: '',
+      occurredAt: '',
+      waitingFee: null,
+      tip: null
     };
 
     this.rideDate = null;

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Ride } from '../../models/ride.model';
 import { RideService } from '../../services/ride.service';
@@ -14,7 +14,8 @@ import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/conf
 import { TopbarFilter, TopbarFilters } from '../../../../shared/services/topbar-filter.service';
 
 import { Router } from '@angular/router';
-import { filter } from 'rxjs';
+
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-ride-list',
@@ -26,12 +27,19 @@ import { filter } from 'rxjs';
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
+    MatPaginator
   ],
   templateUrl: './ride-list.html',
   styleUrl: './ride-list.scss',
 })
 
 export class RideList implements OnInit {
+
+  totalRecords = 0;
+  pageSize = 10;
+  page = 0;
+
+  Math = Math;
 
   rides: Ride[] = [];
   filteredRides: Ride[] = [];
@@ -54,30 +62,80 @@ export class RideList implements OnInit {
     endDate: null
   }
 
-  constructor(private rideService: RideService, private router: Router, private dialog: MatDialog, private topbarFilterService: TopbarFilter) { }
+  constructor(
+    private rideService: RideService,
+    private router: Router,
+    private dialog: MatDialog,
+    private topbarFilterService: TopbarFilter,
+    private changeDetectorRef: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
-    this.loadRides();
+    this.loadTotalRecords();
+    this.loadSummaryCards();
 
     this.topbarFilterService.filters$.subscribe((filters) => {
       this.topbarFilters = filters;
-
-      if (this.rides.length) {
-        this.applyFilters();
-      }
+      this.page = 0;
+      this.applyFilters();
     });
+
+    this.loadRides();
   }
 
-  loadRides(): void {
-    this.rideService.findAll().subscribe({
+  loadRides(page: number = this.page): void {
+    this.page = page;
+
+    this.rideService.findAll(this.page, this.pageSize).subscribe({
       next: (data) => {
-        this.rides = [...data];
+        this.rides = data;
         this.applyFilters();
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Erro ao buscar corridas: ', error);
       },
     });
+  }
+
+  loadTotalRecords(): void {
+    this.rideService.count().subscribe({
+      next: (data) => {
+        this.totalRecords = data;
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Erro ao contar corridas:', error);
+      }
+    });
+  }
+
+  loadSummaryCards(): void {
+    this.rideService.summary().subscribe({
+      next: (summary) => {
+        this.totalRecords = summary.totalRides;
+
+        this.totalDayValue = this.formatCurrency(summary.totalValue);
+        this.totalDaySubtitle = `${summary.totalRides} corridas`;
+
+        this.totalWeekValue = String(summary.totalRides);
+        this.totalWeekSubtitle = 'Corridas encontradas';
+
+        this.totalWeekKm = `${this.formatNumber(summary.totalDistanceKm)}km`;
+
+        this.averageValuePerKm = `${this.formatCurrency(summary.averageValuePerKm)}/km`;
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Erro ao carregar resumo:', error);
+      }
+    });
+  }
+
+  paginar(event: PageEvent): void {
+    this.page = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadRides();
   }
 
   private formatDate(date: Date): string {
@@ -127,8 +185,6 @@ export class RideList implements OnInit {
 
       return matchesPlatform && matchesSearch && matchesStartDate && matchesEndDate;
     });
-
-    this.updateSummaryCards();
   }
 
   clearFilters(): void {
@@ -140,33 +196,6 @@ export class RideList implements OnInit {
     this.topbarFilterService.clearFilters();
 
     this.applyFilters();
-  }
-
-  private updateSummaryCards(): void {
-    const total = this.filteredRides.reduce((sum, ride) => {
-      return sum + ride.totalValue;
-    }, 0);
-
-    this.totalDayValue = this.formatCurrency(total);
-    this.totalDaySubtitle = `${this.filteredRides.length} corridas`;
-    this.totalWeekValue = String(this.filteredRides.length);
-    this.totalWeekSubtitle = 'corridas encontradas';
-
-    const totalKm = this.filteredRides.reduce((sum, ride) => {
-      return sum + ride.distanceKm;
-    }, 0);
-
-    this.totalWeekKm = `${this.formatNumber(totalKm)}km`;
-
-    if (totalKm === 0) {
-      this.averageValuePerKm = 'R$ 0,00/km';
-      return
-    }
-
-    const average = total / totalKm;
-
-    this.averageValuePerKm = `${this.formatCurrency(average)}/km`
-
   }
 
   formatPlatform(platform: string): string {
@@ -280,6 +309,7 @@ export class RideList implements OnInit {
         next: () => {
           this.rides = this.rides.filter((item) => item.id !== ride.id);
           this.applyFilters();
+          this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
           console.error('Erro ao excluir corrida:', error);
@@ -288,4 +318,3 @@ export class RideList implements OnInit {
     });
   }
 }
-

@@ -6,4 +6,6 @@ export interface Ride {
     valuePerKm: number;
     occurredAt: string;
     notes: string;
+    tip: number;
+    waitingFee: number
 }
