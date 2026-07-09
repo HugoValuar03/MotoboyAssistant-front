@@ -39,6 +39,9 @@ export class RideList implements OnInit {
   pageSize = 10;
   page = 0;
 
+  startDate: Date | null = null;
+  endDate: Date | null = null;
+
   Math = Math;
 
   rides: Ride[] = [];
@@ -67,7 +70,7 @@ export class RideList implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private topbarFilterService: TopbarFilter,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -81,6 +84,13 @@ export class RideList implements OnInit {
     });
 
     this.loadRides();
+  }
+
+  applyDateFilter(): void {
+    this.topbarFilterService.updateFilters({
+      startDate: this.startDate,
+      endDate: this.endDate
+    });
   }
 
   loadRides(page: number = this.page): void {
@@ -147,13 +157,12 @@ export class RideList implements OnInit {
   }
 
   get dateRangeLabel(): string {
-    if (!this.startDateFilter || !this.endDateFilter) {
+    if (!this.startDate || !this.endDate) {
       return 'Selecionar período';
     }
 
-    return `${this.formatDate(this.startDateFilter)} - ${this.formatDate(this.endDateFilter)}`;
+    return `${this.formatDate(this.startDate)} - ${this.formatDate(this.endDate)}`;
   }
-
 
   applyFilters(): void {
     this.filteredRides = this.rides.filter((ride) => {
@@ -173,8 +182,8 @@ export class RideList implements OnInit {
 
       const rideDate = this.parseRideDate(ride.occurredAt);
 
-      const startDateSource = this.startDateFilter || this.topbarFilters.startDate;
-      const endDateSource = this.endDateFilter || this.topbarFilters.endDate;
+      const startDateSource = this.startDate || this.topbarFilters.startDate;
+      const endDateSource = this.endDate || this.topbarFilters.endDate;
 
       const startDate = startDateSource ? this.getStartOfDay(startDateSource) : null;
       const endDate = endDateSource ? this.getEndOfDay(endDateSource) : null;
@@ -190,8 +199,8 @@ export class RideList implements OnInit {
   clearFilters(): void {
     this.selectedPlatform = 'ALL';
     this.searchTerm = '';
-    this.startDateFilter = null;
-    this.endDateFilter = null;
+    this.startDate = null;
+    this.endDate = null;
 
     this.topbarFilterService.clearFilters();
 

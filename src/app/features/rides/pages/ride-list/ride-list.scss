@@ -260,6 +260,55 @@ tbody tr:hover {
   color: #64748b;
 }
 
+.topbar-date-range {
+  position: relative;
+}
+
+.date-range-button {
+  height: 46px;
+  min-width: 250px;
+  padding: 0 14px;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: #0f172a;
+  transition: 0.2s ease;
+
+  &:hover {
+    border-color: #cbd5e1;
+    background-color: #f8fafc;
+  }
+}
+
+.calendar-icon,
+.arrow-icon {
+  font-size: 22px;
+  color: #476282;
+  flex-shrink: 0;
+}
+
+.date-range-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date-range-hidden {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
 @media (max-width: 1100px) {
   .summary-grid {
     grid-template-columns: repeat(2, minmax(220px, 1fr));

@@ -40,6 +40,27 @@
         </div>
       </div>
 
+      <div class="topbar-date-range">
+        <div class="date-range-button" (click)="picker.open()">
+          <span class="material-symbols-outlined calendar-icon">calendar_month</span>
+
+          <span class="date-range-text">
+            {{ dateRangeLabel }}
+          </span>
+
+          <span class="material-symbols-outlined arrow-icon">expand_more</span>
+        </div>
+
+        <mat-form-field class="date-range-hidden">
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate [(ngModel)]="startDate" (dateChange)="applyDateFilter()">
+            <input matEndDate [(ngModel)]="endDate" (dateChange)="applyDateFilter()">
+          </mat-date-range-input>
+
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+
       <button class="clear-button" type="button" (click)="clearFilters()">
         <span class="material-symbols-outlined">filter_alt_off</span>
         Limpar filtros
@@ -123,11 +144,7 @@
           }
         </tbody>
       </table>
-      <mat-paginator 
-        (page)="paginar($event)" 
-        [length]="totalRecords" 
-        [pageIndex]="page"
-        [pageSize]="pageSize"
+      <mat-paginator (page)="paginar($event)" [length]="totalRecords" [pageIndex]="page" [pageSize]="pageSize"
         [pageSizeOptions]="[5, 10, 15, 20]">
       </mat-paginator>
     </div>

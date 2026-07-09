@@ -40,27 +40,6 @@
             </div>
 
             <div class="topbar-right">
-                <div class="topbar-date-range">
-                    <div class="date-range-button" (click)="picker.open()">
-                        <span class="material-symbols-outlined calendar-icon">calendar_month</span>
-
-                        <span class="date-range-text">
-                            {{ dateRangeLabel }}
-                        </span>
-
-                        <span class="material-symbols-outlined arrow-icon">expand_more</span>
-                    </div>
-
-                    <mat-form-field class="date-range-hidden">
-                        <mat-date-range-input [rangePicker]="picker">
-                            <input matStartDate [(ngModel)]="startDate" (dateChange)="applyTopbarFilters()">
-                            <input matEndDate [(ngModel)]="endDate" (dateChange)="applyTopbarFilters()">
-                        </mat-date-range-input>
-
-                        <mat-date-range-picker #picker></mat-date-range-picker>
-                    </mat-form-field>
-                </div>
-
                 <div class="perfil">
                     <a href="#" class="perfil-button">
                         <span class="material-symbols-outlined">person</span>

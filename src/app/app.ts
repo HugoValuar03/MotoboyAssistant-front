@@ -28,43 +28,19 @@ export class App {
   constructor(private router: Router, private topbarFilterService: TopbarFilter) { }
 
   searchTerm = '';
-  startDate: Date | null = null;
-  endDate: Date | null = null;
 
   applyTopbarFilters(): void {
     this.topbarFilterService.updateFilters({
-      searchTerm: this.searchTerm,
-      startDate: this.startDate,
-      endDate: this.endDate
+      searchTerm: this.searchTerm
     });
   }
 
   clearTopbarFilters(): void {
     this.searchTerm = '';
-    this.startDate = null;
-    this.endDate = null;
-
     this.topbarFilterService.clearFilters();
   }
 
   goToRides(): void {
     this.router.navigate(['/corridas']);
   }
-
-  get dateRangeLabel(): string {
-    if (!this.startDate || !this.endDate) {
-      return 'Selecionar período';
-    }
-
-    return `${this.formatDate(this.startDate)} - ${this.formatDate(this.endDate)}`;
-  }
-
-  private formatDate(date: Date): string {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`;
-  }
-
 }
