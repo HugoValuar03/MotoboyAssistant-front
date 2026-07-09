@@ -1,59 +1,128 @@
-# MotoboyAssistantWeb
+# Motoboy Assistant Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.17.
+Frontend do Motoboy Assistant, uma aplicacao Angular para gerenciar corridas de motoboy. A interface permite listar, cadastrar, editar e remover corridas, alem de consultar resumo e plataformas vindos da API.
 
-## Development server
+## Tecnologias
 
-To start a local development server, run:
+- Angular 21
+- Angular Material/CDK
+- TypeScript
+- SCSS
+- RxJS
+- Vitest
 
-```bash
-ng serve
+## Requisitos
+
+- Node.js compativel com Angular 21
+- npm
+- Backend do Motoboy Assistant rodando em `http://localhost:8080`
+
+O endpoint base da API fica configurado em:
+
+- `src/environments/environment.ts`
+- `src/environments/environment.development.ts`
+
+Por padrao, ambos usam:
+
+```ts
+apiUrl: 'http://localhost:8080'
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Instalacao
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Instale as dependencias do projeto:
 
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Executando em desenvolvimento
+
+Inicie o servidor local:
 
 ```bash
-ng generate --help
+npm start
 ```
 
-## Building
+Depois acesse:
 
-To build the project run:
+```text
+http://localhost:4200
+```
+
+A aplicacao recarrega automaticamente quando os arquivos em `src/` sao alterados.
+
+## Rotas principais
+
+- `/corridas` - lista de corridas
+- `/corridas/form` - cadastro de corrida
+- `/corridas/:id/editar` - edicao de corrida
+
+## Scripts disponiveis
 
 ```bash
-ng build
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Executa o projeto com `ng serve`.
 
 ```bash
-ng test
+npm run build
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+Gera a build de producao em `dist/`.
 
 ```bash
-ng e2e
+npm run watch
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Gera build em modo desenvolvimento observando alteracoes.
 
-## Additional Resources
+```bash
+npm test
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Executa os testes unitarios.
+
+## Estrutura do projeto
+
+```text
+src/
+  app/
+    features/
+      rides/
+        models/       # Modelos de corridas e plataformas
+        pages/        # Telas de listagem e formulario
+        services/     # Comunicacao com a API
+      dashboard/
+        components/   # Componentes de resumo
+    shared/
+      components/     # Dialogos reutilizaveis
+      services/       # Servicos compartilhados
+  environments/       # Configuracoes por ambiente
+public/
+  images/             # Imagens publicas da aplicacao
+```
+
+## API consumida
+
+O frontend consome principalmente:
+
+- `GET /api/corridas`
+- `GET /api/corridas/resumo`
+- `GET /api/corridas/count`
+- `GET /api/corridas/:id`
+- `POST /api/corridas`
+- `PUT /api/corridas/:id`
+- `DELETE /api/corridas/:id`
+- `GET /platforms`
+
+## Build de producao
+
+Para gerar os arquivos finais:
+
+```bash
+npm run build
+```
+
+Os artefatos serao criados na pasta `dist/`.
